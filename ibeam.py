@@ -1,7 +1,7 @@
 from tabulate import tabulate
 import numpy as np
 
-def IBeam(sigma, F, t, h_values, w_values, dist, tol):
+def ibeam(sigma, F, t, dist, tol, height_values, width_values):
     """
     Calculates the maximum geometric efficiency of an I-beam with the given parameters.
 
@@ -13,14 +13,14 @@ def IBeam(sigma, F, t, h_values, w_values, dist, tol):
         The force applied to the beam.
     t : float
         The thickness of the beam flanges and web.
-    h_values : array-like
-        An array of possible heights for the beam web.
-    w_values : array-like
-        An array of possible widths for the beam flanges.
     dist : float
         The distance from the applied force to the centroid of the beam cross-section.
     tol : float
         The tolerance factor for the maximum allowable stress in the beam.
+    height_values : array-like
+        An array of possible heights for the beam web.
+    width_values : array-like
+        An array of possible widths for the beam flanges.
 
     Returns
     -------
@@ -30,9 +30,9 @@ def IBeam(sigma, F, t, h_values, w_values, dist, tol):
     headers = ['Height (h)', 'Width (w)', 'Distance from force applied (m)', 'Geometric efficiency']
     data = []
 
-    for h in h_values:
+    for h in height_values:
         row_data = []
-        for w in w_values:
+        for w in width_values:
             M = F * dist # calculating moment
             zShear = M / sigma # calculating shear modulus based on given conditions
 
@@ -72,10 +72,10 @@ if __name__ == "__main__":
 
     t = 10 # Thickness of I-beam (mm)
 
+    tol = 2.00 # tolerance for the system (how close we want our desired shear modulus to be to the limit)
+
     h = np.arange(1, 1001-2*t, step=1) # Height of I-beam (mm)
     w = np.arange(1, 1001-2*t, step=1) # width of I-beam (mm)
 
-    tol = 2.00 # tolerance for the system (how close we want our desired shear modulus to be to the limit)
-    
     for d in dist:
-        IBeam(sigma, F, t, h, w, d, tol)
+        ibeam(sigma, F, t, d, tol, h, w)
