@@ -68,7 +68,7 @@ if __name__ == "__main__":
     
     sigma = 100 # Max stress not allowed to exceed (N/mm^2)
     F = 100 * pow(10, 3) # Force applied (N)
-    dist = np.array([100, 1000, 2000, 3000, 4000]) # Distance from force applied (mm)
+    dist = [100, 1000, 2000, 3000, 4000] # Distance from force applied (mm)
 
     t = 10 # Thickness of I-beam (mm)
 
