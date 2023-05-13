@@ -1,3 +1,4 @@
+from tabulate import tabulate
 import numpy as np
 
 def IBeam(sigma, F, t, h_values, w_values, dist, tol):
@@ -24,28 +25,42 @@ def IBeam(sigma, F, t, h_values, w_values, dist, tol):
     Returns
     -------
     None
-        The function prints the maximum geometric efficiency of the beam and its corresponding height, width, and distance from the applied force.
+        The function prints the maximum geometric efficiency of the beam and its corresponding height, width, and distance from the applied force in a table format.
     """
-    M = F * dist
-    zShear = M / sigma
-    
-    # Initialize arrays for xsa, ix, y, zInt, and geom
-    h_mesh, w_mesh = np.meshgrid(h_values, w_values, indexing='ij')
-    xsa = 2 * t * w_mesh + t * h_mesh
-    ix = (t * h_mesh**3) / 12 + (w_mesh / 12) * ((2*t+h_mesh)**3 - h_mesh**3)
-    y = h_mesh / 2 + t
-    zInt = ix / y
-    geom = np.where(np.logical_or(zInt <= zShear, zInt >= tol * zShear), 0, zInt / xsa)
-    
-    # Find max value and its location in geom
-    max_val = np.max(geom)
-    max_val_indices = np.unravel_index(np.argmax(geom), geom.shape)
-    
-    # Print results
-    print("The max value of geom is:", round(max_val, 2))
-    print("height (h):", int(h_values[max_val_indices[0]]))
-    print("width (w):", int(w_values[max_val_indices[1]]))
-    print("distance from force applied:", int(dist))
+    headers = ['Height (h)', 'Width (w)', 'Distance from force applied (m)', 'Geometric efficiency']
+    data = []
+
+    for h in h_values:
+        row_data = []
+        for w in w_values:
+            M = F * dist # calculating moment
+            zShear = M / sigma # calculating shear modulus based on given conditions
+
+            # calculating XSA for each h/w combination   
+            xsa = 2*t*w + t*h 
+            
+            # calculating ix (i.e. inertia of rotation about the x-axis) for each h/w combination
+            ix = (t*h**3)/12 + (w/12) * ((2*t+h)**3 - h**3) 
+            
+            # calculating y for each h combination 
+            y = h/2 + t 
+
+            # calculating zInt for each Ix/y combination
+            zInt = ix / y
+
+            # check to see if zInt <= zShear or >= tol * zShear since this is not ideal
+            if zInt <= zShear or zInt >= tol * zShear:
+                zInt = 0 # zInt is set to 0 if this condition is unsatisfied
+
+            # Creating the relationship between zInt and XSA
+            geom = round(zInt /  xsa, 2)
+
+            row_data.append([h, w, dist, geom])
+
+        data.extend(row_data)
+
+    max_row = max(data, key=lambda x: x[3])
+    print(tabulate([max_row], headers=headers))
     print("\n")
 
 
